@@ -1,0 +1,122 @@
+<%- include('partials/header.ejs'); -%>
+
+<div class="box" id="heading">
+  <div class="toggle-container">
+    <h1><%= listTitle %></h1>
+    <button id="modeToggle" aria-label="Change Light">🌓</button>
+  </div>
+</div>
+
+<div class="box">
+  <% for(let item of listItems) { %>
+  <div class="item">
+    <form id="deleteForm<%= item.id %>" action="/delete" method="post">
+      <input type="hidden" name="deleteItemId" value="<%= item.id %>" />
+      <button
+        type="button"
+        class="delete-btn"
+        onclick="confirmDelete(<%= item.id %>)"
+      >
+        <img
+          class="icon"
+          src="/assets/icons/trash-solid.svg"
+          alt="delete icon"
+        />
+      </button>
+    </form>
+
+    <p id="title<%= item.id %>"><%= item.title %></p>
+
+    <form class="edit" action="/edit" method="post">
+      <input type="hidden" name="updatedItemId" value="<%= item.id %>" />
+      <input
+        id="input<%= item.id %>"
+        type="text"
+        name="updatedItemTitle"
+        value="<%= item.title %>"
+        autocomplete="off"
+        hidden="true"
+      />
+      <button id="done<%= item.id %>" class="edit" type="submit" hidden>
+        <img
+          class="icon"
+          src="/assets/icons/check-solid.svg"
+          alt="tick image"
+        />
+      </button>
+    </form>
+
+    <button
+      id="edit<%= item.id %>"
+      class="edit"
+      onclick="handler('<%= item.id %>')"
+    >
+      <img
+        class="icon"
+        src="/assets/icons/pencil-solid.svg"
+        alt="pencil image"
+      />
+    </button>
+  </div>
+  <% } %>
+
+  <form class="item" action="/add" method="post" dir="rtl">
+    <input
+      type="text"
+      name="newItem"
+      placeholder="New Item"
+      autocomplete="off"
+      autofocus="true"
+    />
+    <button class="add" type="submit" name="list" value="<%= listTitle %>">
+      +
+    </button>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function handler(id) {
+    document.getElementById("title" + id).setAttribute("hidden", true);
+    document.getElementById("edit" + id).setAttribute("hidden", true);
+    document.getElementById("done" + id).removeAttribute("hidden");
+    document.getElementById("input" + id).removeAttribute("hidden");
+  }
+
+  function confirmDelete(id) {
+    Swal.fire({
+      title: "Delete the task?",
+      text: "You can't undo it.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Undo",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById("deleteForm" + id).submit();
+      }
+    });
+  }
+</script>
+
+<script>
+  const toggleButton = document.getElementById("modeToggle");
+
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark-mode");
+    toggleButton.innerHTML = "☀️";
+  } else {
+    toggleButton.innerHTML = "🌙";
+  }
+
+  toggleButton.addEventListener("click", () => {
+    const isDark = document.body.classList.toggle("dark-mode");
+    localStorage.setItem("darkMode", isDark);
+    toggleButton.innerHTML = isDark ? "☀️" : "🌙";
+  });
+</script>
+
+<%- include('partials/footer.ejs'); -%>
